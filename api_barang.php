@@ -95,18 +95,6 @@ switch ($action) {
         }
         break;
 
-    case 'read_harga':
-        $sql = "SELECT * FROM harga";
-        $result = $conn->query($sql);
-        
-        $data = [];
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                $data[] = $row;
-            }
-        }
-        echo json_encode($data);
-        break;
 
     case 'upload_image':
         if ($_FILES['image']['name']) {

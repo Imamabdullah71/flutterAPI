@@ -1,0 +1,17 @@
+~~~~~~~~~~~~~~~ Lokasi IPv4 addresses yang harus di update, jika ip berubah ~~~~~~~~~~~~~~~
+- barang_controller.dart
+- tambah_barang_controller.dart
+- kategori_controller.dart
+- kelola_stok_page_controller.dart
+- add_supplier_controller.dart
+- supplier_controller.dart
+- riwayat_controller.dart
+- transaksi_controller.dart
+- upload_struk_controller.dart
+- user_controller.dart
+- kategori_page.dart
+- barang.dart
+- detail_barang.dart
+- supplier_detail_page.dart
+- suppliers_page.dart
+- transaksi_page.dart
