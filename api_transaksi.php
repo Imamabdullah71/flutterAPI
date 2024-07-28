@@ -10,66 +10,69 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['action'])) {
-    $action = $_GET['action'];
+$action = isset($_GET['action']) ? $_GET['action'] : '';
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['action'])) {
-        $action = $_GET['action'];
-    
-        if ($action == 'create_transaksi') {
-            $data = json_decode(file_get_contents('php://input'), true);
-    
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                echo json_encode(array('status' => 'error', 'message' => 'JSON decoding error: ' . json_last_error_msg()));
-                $conn->close();
-                exit();
-            }
-    
-            $detail_barang = json_encode($data['detailBarang']);
-            $total_barang = $data['totalBarang'];
-            $total_harga = $data['totalHarga'];
-            $total_harga_beli = $data['totalHargaBeli'];
-            $bayar = $data['bayar'];
-            $kembali = $data['kembali'];
-            $user_id = $data['userId'];
-            $created_at = $data['createdAt'];
-            $updated_at = $data['updatedAt'];
-    
-            $sql = "INSERT INTO transaksi (detail_barang, total_barang, total_harga, total_harga_beli, bayar, kembali, user_id, created_at, updated_at)
-                    VALUES ('$detail_barang', $total_barang, $total_harga, $total_harga_beli, $bayar, $kembali, $user_id, '$created_at', '$updated_at')";
-    
-            if ($conn->query($sql) === TRUE) {
-                $transaksi_id = $conn->insert_id;
-                $response = array('status' => 'success', 'message' => 'Transaksi berhasil disimpan', 'transaksi_id' => $transaksi_id);
-            } else {
-                $response = array('status' => 'error', 'message' => 'SQL Error: ' . $conn->error);
-            }
-    
-            echo json_encode($response);
-    
-        } elseif ($action == 'upload_struk') {
-            $transaksi_id = $_POST['transaksi_id'];
-    
-            if (isset($_FILES['struk'])) {
-                $target_dir = "struk/";
-                $target_file = $target_dir . basename($_FILES["struk"]["name"]);
-                if (move_uploaded_file($_FILES["struk"]["tmp_name"], $target_file)) {
-                    $struk_name = basename($_FILES["struk"]["name"]);
-                    $sql = "UPDATE transaksi SET struk='$struk_name' WHERE id=$transaksi_id";
-                    if ($conn->query($sql) === TRUE) {
-                        echo json_encode(array('status' => 'success', 'message' => 'Struk uploaded successfully'));
-                    } else {
-                        echo json_encode(array('status' => 'error', 'message' => 'Failed to update struk: ' . $conn->error));
-                    }
-                } else {
-                    echo json_encode(array('status' => 'error', 'message' => 'Failed to move uploaded file'));
-                }
-            } else {
-                echo json_encode(array('status' => 'error', 'message' => 'No file uploaded'));
-            }
-        }
+if ($action == 'create_transaksi') {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $total_barang = $data['total_barang'];
+    $total_harga = $data['total_harga'];
+    $total_harga_beli = $data['total_harga_beli'];
+    $bayar = $data['bayar'];
+    $kembali = $data['kembali'];
+    $user_id = $data['user_id'];
+    $created_at = $data['created_at'];
+    $updated_at = $data['updated_at'];
+
+    $query = "INSERT INTO transaksi (total_barang, total_harga, total_harga_beli, bayar, kembali, user_id, created_at, updated_at) VALUES ('$total_barang', '$total_harga', '$total_harga_beli', '$bayar', '$kembali', '$user_id', '$created_at', '$updated_at')";
+
+    if ($conn->query($query) === TRUE) {
+        $transaksi_id = $conn->insert_id;
+        echo json_encode(['status' => 'success', 'transaksi_id' => $transaksi_id]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => $conn->error]);
     }
-    
+} elseif ($action == 'create_detail_transaksi') {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $transaksi_id = $data['transaksi_id'];
+    $nama_barang = $data['nama_barang'];
+    $jumlah_barang = $data['jumlah_barang'];
+    $harga_barang = $data['harga_barang'];
+    $jumlah_harga = $data['jumlah_harga'];
+    $created_at = $data['created_at'];
+    $updated_at = $data['updated_at'];
+
+    $query = "INSERT INTO detail_transaksi (transaksi_id, nama_barang, jumlah_barang, harga_barang, jumlah_harga, created_at, updated_at) VALUES ('$transaksi_id', '$nama_barang', '$jumlah_barang', '$harga_barang', '$jumlah_harga', '$created_at', '$updated_at')";
+
+    if ($conn->query($query) === TRUE) {
+        echo json_encode(['status' => 'success']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => $conn->error]);
+    }
+} elseif ($action == 'upload_struk') {
+    if (isset($_FILES['struk']) && isset($_POST['transaksi_id'])) {
+        $transaksi_id = $_POST['transaksi_id'];
+        $target_dir = "C:/xampp/htdocs/flutterapi/struk/";
+        $file_name = basename($_FILES["struk"]["name"]);
+        $target_file = $target_dir . $file_name;
+
+        if (move_uploaded_file($_FILES["struk"]["tmp_name"], $target_file)) {
+            $query = "UPDATE transaksi SET struk='$file_name' WHERE id='$transaksi_id'";
+            if ($conn->query($query) === TRUE) {
+                echo json_encode(['status' => 'success']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => $conn->error]);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to upload file']);
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
+    }
+} else {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
 }
 
 $conn->close();
+?>
