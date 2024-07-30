@@ -46,7 +46,13 @@ if ($action == 'create_transaksi') {
     $query = "INSERT INTO detail_transaksi (transaksi_id, nama_barang, jumlah_barang, harga_barang, jumlah_harga, created_at, updated_at) VALUES ('$transaksi_id', '$nama_barang', '$jumlah_barang', '$harga_barang', '$jumlah_harga', '$created_at', '$updated_at')";
 
     if ($conn->query($query) === TRUE) {
-        echo json_encode(['status' => 'success']);
+        // Kurangi stok barang di tabel barang
+        $update_stok_query = "UPDATE barang SET stok_barang = stok_barang - $jumlah_barang WHERE nama_barang = '$nama_barang'";
+        if ($conn->query($update_stok_query) !== TRUE) {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to update stock: ' . $conn->error]);
+        } else {
+            echo json_encode(['status' => 'success']);
+        }
     } else {
         echo json_encode(['status' => 'error', 'message' => $conn->error]);
     }

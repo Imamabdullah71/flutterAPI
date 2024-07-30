@@ -136,6 +136,33 @@ switch ($action) {
         }
         break;
 
+        case 'delete_barang':
+            $id = $_POST['id'];
+    
+            // Get the image filename
+            $sql = "SELECT gambar FROM barang WHERE id = '$id'";
+            $result = $conn->query($sql);
+            if ($result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                $image_path = 'uploads/' . $row['gambar'];
+                if (file_exists($image_path)) {
+                    unlink($image_path); // Delete the image file
+                }
+            }
+    
+            // Delete from harga table
+            $sql_harga = "DELETE FROM harga WHERE barang_id = '$id'";
+            $conn->query($sql_harga);
+    
+            // Delete from barang table
+            $sql_barang = "DELETE FROM barang WHERE id = '$id'";
+            if ($conn->query($sql_barang) === TRUE) {
+                echo json_encode(["status" => "success"]);
+            } else {
+                echo json_encode(["status" => "error", "message" => $conn->error]);
+            }
+            break;
+
     default:
         echo json_encode(["status" => "error", "message" => "Invalid action"]);
 }
