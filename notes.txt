@@ -1,0 +1,2 @@
+Gunakan bahasa indonesia dalam percakapan kali ini.
+Hindari penggunaan StatefulWidget, untuk fungsi-fungsi gunakan fungsi getx dan obx jika ada perubahan pada tampilan, pembuatan fungsi controller getx selalu menggunakan file terpisah.

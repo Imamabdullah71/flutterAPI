@@ -1,0 +1,74 @@
+class Hutang {
+  final int? id;
+  final int transaksiId;
+  final String nama;
+  final double sisaHutang;
+  final String status;
+  final DateTime tanggalMulai;
+
+  Hutang({
+    this.id,
+    required this.transaksiId,
+    required this.nama,
+    required this.sisaHutang,
+    this.status = 'belum lunas',
+    required this.tanggalMulai,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'transaksi_id': transaksiId,
+      'nama': nama,
+      'sisa_hutang': sisaHutang,
+      'status': status,
+      'tanggal_mulai': tanggalMulai.toIso8601String(),
+    };
+  }
+
+  factory Hutang.fromJson(Map<String, dynamic> json) {
+    return Hutang(
+      id: json['id'] != null ? int.tryParse(json['id'].toString()) : null,
+      transaksiId: int.parse(json['transaksi_id'].toString()),
+      nama: json['nama'],
+      sisaHutang: double.parse(json['sisa_hutang'].toString()),
+      status: json['status'] ?? 'belum lunas',
+      tanggalMulai: DateTime.parse(json['tanggal_mulai']),
+    );
+  }
+}
+
+
+class RiwayatPembayaran {
+  final int? id;
+  final int hutangId;
+  final double jumlahBayar;
+  final DateTime tanggalBayar;
+
+  RiwayatPembayaran({
+    this.id,
+    required this.hutangId,
+    required this.jumlahBayar,
+    required this.tanggalBayar,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'hutang_id': hutangId,
+      'jumlah_bayar': jumlahBayar,
+      'tanggal_bayar': tanggalBayar.toIso8601String(),
+    };
+  }
+
+  factory RiwayatPembayaran.fromJson(Map<String, dynamic> json) {
+    return RiwayatPembayaran(
+      id: json['id'] != null ? int.tryParse(json['id'].toString()) : null,
+      hutangId: int.parse(json['hutang_id'].toString()),
+      jumlahBayar: double.parse(json['jumlah_bayar'].toString()),
+      tanggalBayar: DateTime.parse(json['tanggal_bayar']),
+    );
+  }
+}
+
+Sekarang masih Jangan berikan kode terlebih dahulu, ingat baik-baik saja dengan kode yang saya berikan untuk memberikan arahan selanjutnya, saya akan memberikan kode lain, sekarang berikan penjelasan singkat saja. Apakah anda faham sistem dari semua yang telah saya buat? jika faham saya akan memberikan instruksi selanjutnya.
