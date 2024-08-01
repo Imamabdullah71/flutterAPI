@@ -44,7 +44,8 @@ switch ($action) {
                 FROM barang b 
                 LEFT JOIN kategori k ON b.kategori_id = k.id
                 LEFT JOIN harga h ON b.id = h.barang_id
-                WHERE k.user_id = '$user_id'";
+                WHERE k.user_id = '$user_id'
+                ORDER BY b.created_at DESC";
         $result = $conn->query($sql);
         
         $data = [];

@@ -30,7 +30,7 @@ if ($action == 'get_hutang') {
     $sisaHutangSebelum = $_POST['sisa_hutang_sebelum'];
     $transaksiId = $_POST['transaksi_id'];
 
-    $sisaHutangSekarang = $sisaHutangSebelum + $inputBayar; // Perbaiki perhitungan
+    $sisaHutangSekarang = $sisaHutangSebelum + $inputBayar;
 
     $conn->begin_transaction();
 
@@ -66,21 +66,15 @@ if ($action == 'get_hutang') {
     } else {
         echo json_encode(array("status" => "error", "message" => $conn->error));
     }
-} elseif ($action == 'get_riwayat') {
+} elseif ($action == 'get_riwayat_pembayaran') {
     $hutangId = $_GET['hutang_id'];
     $sql = "SELECT * FROM riwayat_pembayaran WHERE hutang_id='$hutangId'";
     $result = $conn->query($sql);
-
-    if ($result === false) {
-        echo json_encode(array("status" => "error", "message" => $conn->error));
-        exit;
-    }
 
     $riwayat = array();
     while($row = $result->fetch_assoc()) {
         $riwayat[] = $row;
     }
-
     echo json_encode(array("status" => "success", "data" => $riwayat));
 } else {
     echo json_encode(array("status" => "error", "message" => "Invalid action"));
