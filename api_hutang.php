@@ -37,7 +37,7 @@ if ($action == 'get_hutang') {
     try {
         if ($inputBayar >= abs($sisaHutangSebelum)) {
             $sisaHutangSekarang = 0;
-            $sql = "UPDATE hutang SET sisa_hutang=0 WHERE id='$id'";
+            $sql = "UPDATE hutang SET sisa_hutang=0, status='lunas', tanggal_selesai=NOW() WHERE id='$id'";
             $conn->query($sql);
 
             $sql = "UPDATE transaksi SET kembali=0 WHERE id='$transaksiId'";
@@ -60,7 +60,12 @@ if ($action == 'get_hutang') {
 } elseif ($action == 'update_status_hutang') {
     $id = $_POST['id'];
     $status = $_POST['status'];
-    $sql = "UPDATE hutang SET status='$status' WHERE id='$id'";
+    $sql = "UPDATE hutang SET status='$status'";
+    if ($status == 'lunas') {
+        $sql .= ", tanggal_selesai=NOW()";
+    }
+    $sql .= " WHERE id='$id'";
+
     if ($conn->query($sql) === TRUE) {
         echo json_encode(array("status" => "success"));
     } else {
