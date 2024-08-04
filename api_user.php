@@ -23,6 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $alamat = $_POST['alamat'];
         $no_telepon = $_POST['no_telepon'];
         
+        // Cek apakah email sudah ada di database
+        $check_sql = "SELECT id FROM user WHERE email = '$email'";
+        $check_result = $conn->query($check_sql);
+        if ($check_result->num_rows > 0) {
+            echo json_encode(["status" => "error", "message" => "Email sudah terdaftar"]);
+            return;
+        }
+        
         $sql = "INSERT INTO user (nama, email, password, nama_toko, alamat, no_telepon) VALUES ('$name', '$email', '$password', '$nama_toko', '$alamat', '$no_telepon')";
         
         if ($conn->query($sql) === TRUE) {
@@ -46,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 echo json_encode(["status" => "error", "message" => "Invalid password"]);
             }
-        }   else {
+        } else {
             echo json_encode(["status" => "error", "message" => "User not found"]);
         }
     }
