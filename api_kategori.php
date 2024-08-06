@@ -19,12 +19,11 @@ $user_id = isset($_GET['user_id']) ? $_GET['user_id'] : '';
 switch ($action) {
     case 'create_kategori':
         $nama_kategori = $_POST['nama_kategori'];
-        $gambar = isset($_POST['gambar']) ? $_POST['gambar'] : null;
         $user_id = $_POST['user_id']; // Terima user_id
         $created_at = date('Y-m-d H:i:s');
         
-        $sql = "INSERT INTO kategori (nama_kategori, gambar, user_id, created_at, updated_at) 
-                VALUES ('$nama_kategori', '$gambar', '$user_id', '$created_at', '$created_at')";
+        $sql = "INSERT INTO kategori (nama_kategori, user_id, created_at, updated_at) 
+                VALUES ('$nama_kategori', '$user_id', '$created_at', '$created_at')";
         
         if ($conn->query($sql) === TRUE) {
             echo json_encode(["status" => "success"]);
@@ -57,22 +56,9 @@ switch ($action) {
         }
         break;
 
-    case 'upload_image':
-        if ($_FILES['image']['name']) {
-            $filename = $_FILES['image']['name'];
-            $location = "uploads/" . $filename;
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $location)) {
-                echo json_encode(["status" => "success", "path" => $filename]);
-            } else {
-                echo json_encode(["status" => "error", "message" => "Failed to upload image"]);
-            }
-        } else {
-            echo json_encode(["status" => "error", "message" => "No image uploaded"]);
-        }
-        break;
-
     default:
         echo json_encode(["status" => "error", "message" => "Invalid action"]);
 }
 
 $conn->close();
+?>
