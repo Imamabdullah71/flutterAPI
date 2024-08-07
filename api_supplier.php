@@ -17,21 +17,26 @@ $user_id = isset($_GET['user_id']) ? $_GET['user_id'] : '';
 
 switch ($action) {
     case 'create_supplier':
-        $nama_supplier = $_POST['nama_supplier'];
-        $nama_toko_supplier = $_POST['nama_toko_supplier'];
-        $no_telepon = $_POST['no_telepon'];
-        $email = $_POST['email'];
-        $alamat = $_POST['alamat'];
+        $nama_supplier = isset($_POST['nama_supplier']) ? $_POST['nama_supplier'] : '';
+        $nama_toko_supplier = isset($_POST['nama_toko_supplier']) ? $_POST['nama_toko_supplier'] : '';
+        $no_telepon = isset($_POST['no_telepon']) ? $_POST['no_telepon'] : '';
+        $alamat = isset($_POST['alamat']) ? $_POST['alamat'] : '';
         $gambar = isset($_POST['gambar']) ? $_POST['gambar'] : null;
-        $user_id = $_POST['user_id']; // Terima user_id
+        $user_id = isset($_POST['user_id']) ? $_POST['user_id'] : ''; // Terima user_id
         $created_at = date('Y-m-d H:i:s');
         
-        $sql = "INSERT INTO supplier (nama_supplier, nama_toko_supplier, no_telepon, email, alamat, gambar, user_id, created_at, updated_at) 
-                VALUES ('$nama_supplier', '$nama_toko_supplier', '$no_telepon', '$email', '$alamat', '$gambar', '$user_id', '$created_at', '$created_at')";
+        // Debugging log
+        error_log("Create supplier: $nama_supplier, $nama_toko_supplier, $no_telepon, $alamat, $gambar, $user_id, $created_at");
+        
+        // Perbaiki query SQL
+        $sql = "INSERT INTO supplier (nama_supplier, nama_toko_supplier, no_telepon, alamat, gambar, user_id, created_at, updated_at) 
+                VALUES ('$nama_supplier', '$nama_toko_supplier', '$no_telepon', '$alamat', '$gambar', '$user_id', '$created_at', '$created_at')";
         
         if ($conn->query($sql) === TRUE) {
             echo json_encode(["status" => "success"]);
         } else {
+            // Tambahkan log error
+            error_log("Error: " . $conn->error);
             echo json_encode(["status" => "error", "message" => $conn->error]);
         }
         break;
@@ -47,6 +52,31 @@ switch ($action) {
             }
         }
         echo json_encode($data);
+        break;
+
+    case 'update_supplier':
+        $id = isset($_POST['id']) ? $_POST['id'] : '';
+        $nama_supplier = isset($_POST['nama_supplier']) ? $_POST['nama_supplier'] : '';
+        $nama_toko_supplier = isset($_POST['nama_toko_supplier']) ? $_POST['nama_toko_supplier'] : '';
+        $no_telepon = isset($_POST['no_telepon']) ? $_POST['no_telepon'] : '';
+        $alamat = isset($_POST['alamat']) ? $_POST['alamat'] : '';
+
+        // Perbaiki query SQL
+        $sql = "UPDATE supplier SET 
+                    nama_supplier = '$nama_supplier', 
+                    nama_toko_supplier = '$nama_toko_supplier', 
+                    no_telepon = '$no_telepon', 
+                    alamat = '$alamat', 
+                    updated_at = NOW() 
+                WHERE id = '$id'";
+
+        if ($conn->query($sql) === TRUE) {
+            echo json_encode(["status" => "success"]);
+        } else {
+            // Tambahkan log error
+            error_log("Error: " . $conn->error);
+            echo json_encode(["status" => "error", "message" => $conn->error]);
+        }
         break;
 
     case 'delete_supplier':
@@ -79,4 +109,3 @@ switch ($action) {
 }
 
 $conn->close();
-?>
