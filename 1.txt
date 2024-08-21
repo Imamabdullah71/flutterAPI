@@ -3,3 +3,504 @@ Perhatikan kode saya dengan seksama dan diingat baik-baik.
 
 
 Jangan berikan kode terlebih dahulu, ingat baik-baik saja dengan kode yang saya berikan untuk memberikan arahan selanjutnya, saya akan memberikan kode lain, sekarang berikan penjelasan singkat saja.
+
+<?php
+
+use App\Http\Controllers\IbuController;
+use App\Http\Controllers\AyahController;
+use App\Http\Controllers\CalonAnakBinaanController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\PengajuanAnakController;
+use App\Http\Controllers\dataSurveyController;
+use App\Http\Controllers\PengajuanDonaturController;
+use App\Http\Controllers\reportController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\surveyDataController;
+use App\Http\Controllers\ValidasiSurveyController;
+use App\Http\Controllers\ValidasiBeasiswaController;
+use App\Http\Controllers\AnakBinaanController;
+use App\Http\Controllers\AreaController;
+use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\TutorController;
+use App\Http\Controllers\TestCont;
+use Illuminate\Support\Facades\Route;
+
+
+Route::get('/',[HomeController::class,'welcome_page'])->name('welcomePage');
+
+Route::get('/login',[LoginController::class,'index'])->name('login');
+Route::post('/login-proses',[LoginController::class,'login_proses'])->name('login-proses');
+
+Route::get('/logout',[LoginController::class,'logout'])->name('logout');
+
+Route::get('/register',[LoginController::class,'register'])->name('register');
+Route::post('/register-proses',[LoginController::class,'register_proses'])->name('register-proses');
+
+Route::group(['prefix' => 'admin','middleware' => ['auth'], 'as' => 'admin.'], function(){
+    Route::get('/menu',[HomeController::class,'menu'])->name('menu');
+    Route::get('/dashboard',[HomeController::class,'dashboard'])->name('dashboard');
+    Route::get('/user',[HomeController::class,'index'])->name('index');
+    Route::get('/create',[HomeController::class,'create'])->name('user.create');
+    Route::post('/store',[HomeController::class,'store'])->name('user.store');
+    Route::get('/edit/{id}',[HomeController::class,'edit'])->name('user.edit');
+    Route::put('/update/{id}',[HomeController::class,'update'])->name('user.update');
+    Route::delete('/delete/{id}',[HomeController::class,'delete'])->name('user.delete');
+
+    // Dashboard Menu Settings
+    Route::get('/Settings/Dashboard',[SettingsController::class,'settingIndex'])->name('settingView');
+
+    // Kantor Cabang
+    Route::get('/Settings/Data_Wilayah/KaCab',[SettingsController::class,'KaCabIndex'])->name('KaCabView'); // Tabel
+    Route::get('/getKacab/{id_kacab}', [SettingsController::class, 'getKacab'])->name('getKacab'); // Get Data untuk Edit
+    Route::put('/updateKacab/{id_kacab}', [SettingsController::class, 'updateKacab'])->name('updateKacab'); // Fungsi Update Edit
+    Route::post('/deleteKacab', [SettingsController::class, 'deleteKacab'])->name('deleteKacab'); // Fungsi Delete
+    Route::get('/Settings/Data_Wilayah/KaCab/Tambah_KaCab',[SettingsController::class,'tambahKacab'])->name('tambahKacabView'); // Form Tambah Kantor Cabang
+    Route::post('/Settings/Data_Wilayah/KaCab/Tambah_KaCab/Simpan_Kacab',[SettingsController::class,'simpanKaCab'])->name('simpanKaCabFunc'); // Fungsi Simpan Kantor Cabang
+
+    // Wilayah Binaan
+    Route::get('/Settings/Data_Wilayah/WilBin',[SettingsController::class,'WilBinIndex'])->name('WilBinView'); // Tabel
+    Route::get('/getWilbin/{id_wilbin}', [SettingsController::class, 'getWilbin'])->name('getWilbin'); // Get Data untuk Edit
+    Route::put('/updateWilbin/{id_wilbin}', [SettingsController::class, 'updateWilbin'])->name('updateWilbin'); // Fungsi Update Edit
+    Route::post('/deleteWilbin', [SettingsController::class, 'deleteWilbin'])->name('deleteWilbin'); // Fungsi Delete
+    Route::get('/Settings/Data_Wilayah/WilBin/Tambah_WilBin',[SettingsController::class,'tambahWilBin'])->name('tambahWilBinView'); // Form Tambah Wilayah Binaan
+    Route::get('/searchKacab', [SettingsController::class, 'getKantorCabang'])->name('getnamakacab'); // Fungsi Get Data Kantor Cabang
+    Route::post('/simpanGetKacab', [SettingsController::class, 'simpanGetKacab'])->name('simpanGetKacab'); // Fungsi Simpan Wilayah Binaan
+
+    // Shelter
+    Route::get('/Settings/Data_Wilayah/Shelter',[SettingsController::class,'ShelterIndex'])->name('ShelterView');
+    Route::get('/getShelter/{id_shelter}', [SettingsController::class, 'getShelter'])->name('getShelter'); // Get Data untuk Edit
+    Route::put('/updateShelter/{id_shelter}', [SettingsController::class, 'updateShelter'])->name('updateShelter'); // Fungsi Update Edit
+    Route::post('/deleteShelter', [SettingsController::class, 'deleteShelter'])->name('deleteShelter'); // Fungsi Delete
+    Route::get('/Settings/Data_Wilayah/Shelter/Tambah_Shelter',[SettingsController::class,'tambahShelter'])->name('tambahShelterView');
+    Route::get('/searchWilbin', [SettingsController::class, 'getWilayahBinaan'])->name('getnamaWilbin');
+    Route::post('/simpanGetWilbin', [SettingsController::class, 'simpanGetWilbin'])->name('simpanGetWilbin');
+
+    Route::get('/PengajuanForm',[PengajuanAnakController::class,'pengajuanForm'])->name('pengajuanForm');
+    Route::post('/PengajuanFormStore',[PengajuanAnakController::class, 'pengajuanFormStore'])->name('pengajuanFormStore');
+    Route::get('/CariKK',[PengajuanAnakController::class,'search'])->name('CariNoKK');
+    Route::get('/anak/tambah', [PengajuanAnakController::class, 'tambahAnakForm'])->name('anak.tambah');
+    Route::post('/anak/simpan', [PengajuanAnakController::class, 'simpanAnak'])->name('anak.simpan');
+    Route::post('/checkKK', [PengajuanAnakController::class, 'checkKK'])->name('checkNoKK');
+
+    Route::get('/calonAnakBinaan', [CalonAnakBinaanController::class, 'calonanakbinaanIndex'])->name('calonanakbinaanIndex');
+    Route::post('/save-calonAnakBinaan',[CalonAnakBinaanController::class,'store'])->name('save-calonAnakBinaan');
+    Route::put('/calonAnakBinaan/{id_anaks}', [CalonAnakBinaanController::class, 'update'])->name('calonanakbinaanValidasi');
+    Route::get('/calonAnakBinaanDetail/{id}/{id_anaks}', [CalonAnakBinaanController::class, 'showDetail'])->name('calonAnakBinaanDetail');
+    Route::put('/calonAnakBinaanEdit/{id}', [CalonAnakBinaanController::class, 'updated'])->name('calonAnakBinaanStore');
+    Route::put('/calonAnakBinaanEditAnak/{id_anaks}', [CalonAnakBinaanController::class, 'updatedAnak'])->name('calonAnakBinaanStoreAnak');
+    Route::put('/calonAnakBinaanEditAyah/{id}', [CalonAnakBinaanController::class, 'updatedAyah'])->name('calonAnakBinaanStoreAyah');
+    Route::put('/calonAnakBinaanEditIbu/{id}', [CalonAnakBinaanController::class, 'updatedIbu'])->name('calonAnakBinaanStoreIbu');
+    Route::put('/calonAnakBinaanEditWali/{id}', [CalonAnakBinaanController::class, 'updatedWali'])->name('calonAnakBinaanStoreWali');
+    Route::post('/calonAnakBinaanDelete', [CalonAnakBinaanController::class, 'destroyd'])->name('calonAnakBinaanDelete');
+    Route::get('/carinomorKK', [CalonAnakBinaanController::class, 'cariKK'])->name('cariKK');
+
+    Route::get('/cariWilayahBinaan/{kantorId}', [CalonAnakBinaanController::class, 'cariWilayahBinaan'])->name('cariWilayahBinaan');
+    Route::get('/cariShelters/{wilbinId}', [CalonAnakBinaanController::class, 'cariShelters'])->name('cariShelters');
+
+    Route::post('/getWilayah', [CalonAnakBinaanController::class, 'cariWilayah'])->name('cariWilayah');
+
+    Route::get('/surveyAnak', [SurveyController::class, 'indexSurvey'])->name('surveyAnak');
+    Route::get('/surveyForm/{id}', [SurveyController::class, 'surveyForm'])->name('surveyForm');
+    Route::post('/surveyStore', [SurveyController::class, 'store'])->name('surveyStore');
+    Route::get('/surveyShow/{id}', [SurveyController::class, 'surveyShow'])->name('surveyShow');
+    Route::put('/surveyEdit/{id}', [SurveyController::class, 'surveyEdit'])->name('surveyEdit');
+
+    Route::get('/Test', [TestCont::class, 'indexTest'])->name('TestView');
+    Route::get('/carinomorKK', [TestCont::class, 'cariNomorKK'])->name('cariNomorKK');
+
+    Route::get('/AnakBinaan', [AnakBinaanController::class, 'index'])->name('AnakBinaan');
+    Route::post('/AnakBinaanstore', [AnakBinaanController::class, 'store'])->name('AnakBinaanstore');
+    Route::get('/AnakBinaanview/{id}', [AnakBinaanController::class, 'showViewPage'])->name('AnakBinaanview');
+    Route::post('/AnakBinaanedit', [AnakBinaanController::class, 'edit'])->name('AnakBinaanedit');
+    Route::get('/AnakBinaandelete/{id}', [AnakBinaanController::class, 'destroy'])->name('AnakBinaandelete');
+
+    Route::post('/updateStatusAktif', [AnakBinaanController::class, 'updateStatusAktif'])->name('updateStatusAktif');
+
+    Route::get('/cariWilBin/{kantorId}', [AnakBinaanController::class, 'cariWilBin'])->name('cariWilBin');
+    Route::get('/cariShel/{wilbinId}', [AnakBinaanController::class, 'cariShel'])->name('cariShel');
+    Route::get('/exportToExcel', [AnakBinaanController::class, 'exportToExcel'])->name('exportToExcel');
+
+    // Validasi Survey
+    Route::get('/validasi-survey', [ValidasiSurveyController::class, 'index'])->name('validasi-survey');
+    Route::get('/validasi/{id}', [ValidasiSurveyController::class, 'validation'])->name('validasi');
+    Route::post('/survey-delete', [ValidasiSurveyController::class, 'destroy'])->name('survey-delete');
+    Route::put('/update-validasi/{id}', [ValidasiSurveyController::class, 'update'])->name('save-validasi');
+
+    // Pengajuan Donatur
+    Route::get('/pengajuan-donatur', [PengajuanDonaturController::class,'index'])->name('aju-donatur');
+    Route::get('/pengajuan/{id?}', [PengajuanDonaturController::class,'show'])->name('pengajuan');
+    Route::get('/cari-donatur', [PengajuanDonaturController::class,'search'])->name('cariDonatur');
+    Route::post('/simpan-donatur', [PengajuanDonaturController::class,'store'])->name('simpanDonatur');
+    Route::patch('/hapus-donatur', [PengajuanDonaturController::class, 'destroy'])->name('hapus-donatur');
+    Route::get('/profile-donatur/{id}', [PengajuanDonaturController::class, 'profileDonatur'])->name('profile-donatur');
+
+    // TUTOR
+    Route::get('/tutor', [TutorController::class, 'index'])->name('tutor');
+    Route::get('/addTutor', [TutorController::class, 'create'])->name('add-tutor');
+    Route::post('/saveTutor', [TutorController::class, 'store'])->name('save-tutor');
+    Route::post('/deleteTutor', [TutorController::class, 'destroy'])->name('delete-tutor');
+    Route::get('/viewTutor/{id}', [TutorController::class, 'show'])->name('view-tutor');
+    // Route::get('/addTutor/{id}/editTutor', [TutorController::class, 'edit'])->name('edit-tutor');
+    Route::get('/editTutor/{id}', [TutorController::class, 'edit'])->name('edit-tutor');
+    Route::get('/getTutor/{id}', [TutorController::class, 'get'])->name('get-tutor');
+
+    //AREA
+    Route::get('/get-wilbin/{kacabId}', [AreaController::class, 'getWilbin'])->name('get-wilbin');
+    Route::get('/get-shelter/{wilbinId}', [AreaController::class, 'getShelter'])->name('get-shelter');
+
+    // LAIN-LAIN
+    Route::resource('/posts', \App\Http\Controllers\PostController::class);
+    Route::resource('/acc', \App\Http\Controllers\AccController::class);
+
+    // report
+    Route::get('/report', [reportController::class,'index'])->name('report');
+    Route::get('/table', [reportController::class,'table'])->name('table');
+    Route::get('/wilbin', [reportController::class,'wilbin'])->name('wilbin');
+    Route::get('/shelter', [reportController::class,'shelter'])->name('shelter');
+    Route::get('/wilbinSurvey', [SurveyController::class,'wilbin'])->name('wilbinSurvey');
+    Route::get('/shelterSurvey', [SurveyController::class,'shelter'])->name('shelterSurvey');
+});
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Anak;
+use App\Models\DataKeluarga;
+
+class HomeController extends Controller
+{
+
+    public function welcome_page(){
+        return view('page.welcomePage');
+    }
+
+    public function dashboard()
+{
+    // Hitung jumlah total data tabel
+    $totalCalonAnakBinaan = DataKeluarga::select(
+        'data_keluargas.*',
+        'ayahs.*',
+        'anaks.*',
+        'ibus.*', 
+        'walis.*',
+        'status_anaks.*',
+        )
+        ->leftJoin('ayahs', 'data_keluargas.id', '=', 'ayahs.data_keluarga_id')
+        ->leftJoin('ibus', 'data_keluargas.id', '=', 'ibus.data_keluarga_id')
+        ->leftJoin('anaks', 'data_keluargas.id', '=', 'anaks.data_keluarga_id')
+        ->leftJoin('walis', 'data_keluargas.id', '=', 'walis.data_keluarga_id')
+        ->leftJoin('status_anaks', 'anaks.id_anaks', '=', 'status_anaks.anak_id')
+        ->where('status_anaks.status_binaan', 0)
+        ->count();
+
+    $totalAnakBinaan = DataKeluarga::select(
+        'data_keluargas.*',
+        'ayahs.*',
+        'anaks.*',
+        'ibus.*', 
+        'walis.*',
+        'status_anaks.*',
+        )
+        ->leftJoin('ayahs', 'data_keluargas.id', '=', 'ayahs.data_keluarga_id')
+        ->leftJoin('ibus', 'data_keluargas.id', '=', 'ibus.data_keluarga_id')
+        ->leftJoin('anaks', 'data_keluargas.id', '=', 'anaks.data_keluarga_id')
+        ->leftJoin('walis', 'data_keluargas.id', '=', 'walis.data_keluarga_id')
+        ->leftJoin('status_anaks', 'anaks.id_anaks', '=', 'status_anaks.anak_id')
+        ->where('status_anaks.status_binaan', 1)
+        ->count();
+
+    $totalBelumValidasi = DataKeluarga::select(
+        'data_keluargas.*',
+        'ayahs.*',
+        'anaks.*',
+        'ibus.*', 
+        'walis.*',
+        'status_anaks.*',
+        )
+        ->leftJoin('ayahs', 'data_keluargas.id', '=', 'ayahs.data_keluarga_id')
+        ->leftJoin('ibus', 'data_keluargas.id', '=', 'ibus.data_keluarga_id')
+        ->leftJoin('anaks', 'data_keluargas.id', '=', 'anaks.data_keluarga_id')
+        ->leftJoin('walis', 'data_keluargas.id', '=', 'walis.data_keluarga_id')
+        ->leftJoin('status_anaks', 'anaks.id_anaks', '=', 'status_anaks.anak_id')
+        ->where('status_anaks.status_beasiswa', 'Belum Validasi')
+        ->count();
+
+    $totalSudahValidasi = DataKeluarga::select(
+        'data_keluargas.*',
+        'ayahs.*',
+        'anaks.*',
+        'ibus.*', 
+        'walis.*',
+        'status_anaks.*',
+        )
+        ->leftJoin('ayahs', 'data_keluargas.id', '=', 'ayahs.data_keluarga_id')
+        ->leftJoin('ibus', 'data_keluargas.id', '=', 'ibus.data_keluarga_id')
+        ->leftJoin('anaks', 'data_keluargas.id', '=', 'anaks.data_keluarga_id')
+        ->leftJoin('walis', 'data_keluargas.id', '=', 'walis.data_keluarga_id')
+        ->leftJoin('status_anaks', 'anaks.id_anaks', '=', 'status_anaks.anak_id')
+        ->where('status_anaks.status_beasiswa', '!=' , 'Belum Validasi')
+        ->count();
+
+    if (auth()->user()->role == 'admin' || auth()->user()->role == 'adminpusat' || auth()->user()->role == 'admincabang' || auth()->user()->role == 'shelter' || auth()->user()->role == 'donatur' || auth()->user()->role == 'orangtua') {
+        return view('dashboard', compact('totalAnakBinaan', 'totalCalonAnakBinaan', 'totalBelumValidasi', 'totalSudahValidasi'));
+    } else {
+        return view('dashboard'); // Tambahkan logika lain jika diperlukan
+    }
+}
+
+    
+    public function menu(){
+        return view('page.menu');
+    }
+
+    public function index(){
+        $data = User::get();
+        return view('index',compact('data'));
+    }
+
+    public function create(){
+        return view('create');
+    }
+    
+    public function store(Request $request){
+        $validator = Validator::make($request->all(),[
+            'name' => 'required',
+            'email' => 'required|email',
+            'role' => 'required',
+            'password' => 'required',
+        ],[
+            'name.required' => 'Nama wajib diisi',
+            'email.required' => 'Email wajib diisi',
+            'role' => 'Role wajib dipilih',
+            'password' => 'Password wajib diisi',
+        ]);
+
+        if($validator->fails()) return redirect()->back()->withInput()->withErrors($validator);
+
+        $data['name'] = $request->name;
+        $data['email'] = $request->email;
+        $data['role'] = $request->name;
+        $data['password'] = Hash::make($request->password);
+
+        User::create($data);
+
+        return redirect()->route('index');
+    }
+
+    public function edit(Request $request,$id){
+        $data = User::find($id);
+
+        return view('edit',compact('data'));
+    }
+
+    public function update(Request $request,$id){
+        $validator = Validator::make($request->all(),[
+            'name' => 'required',
+            'email' => 'required|email',
+            'role' => 'required',
+            'password' => 'nullable',
+        ],[
+            'name.required' => 'Nama wajib diisi',
+            'email.required' => 'Email wajib diisi',
+            'role' => 'Role wajib dipilih',
+            'password' => 'Password wajib diisi',
+        ]);
+
+        if($validator->fails()) return redirect()->back()->withInput()->withErrors($validator);
+
+        $data['name'] = $request->name;
+        $data['email'] = $request->email;
+        $data['role'] = $request->role;
+        
+        if($request->password){
+            $data['password'] = Hash::make($request->password);
+        }
+
+        User::whereId($id)->update($data);
+
+        return redirect()->route('index');
+    }
+
+    public function delete(Request $request,$id){
+        $data = User::find($id);
+
+        if($data){
+            $data->delete();
+        }
+
+        return redirect()->route('admin.index');
+    }
+
+    public function a() {
+        return view('survey.a');
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="{{ asset('css/register.css') }}">
+  <title>Register</title>
+</head>
+<body>
+  <div class="box">
+    <span class="borderLine"></span>
+    <form action="{{ route('register-proses') }}" method="post">
+      @csrf
+      <h2>Register</h2>
+
+      <div class="inputBox">
+        <input type="text" name="nama" value="{{ old('nama') }}" required="required">
+        <span>Nama</span>
+        <i></i>
+      </div>
+      @error('nama')
+      <small>{{ $message }}</small>
+      @enderror
+
+      <div class="inputBox">
+        <input type="email" name="email" value="{{ old('email') }}" required="required">
+        <span>Email</span>
+        <i></i>
+      </div>
+      @error('email')
+      <small>{{ $message }}</small>
+      @enderror
+
+      <div class="inputBox">
+        <input type="password" name="password" required="required">
+        <span>Password</span>
+        <i></i>
+      </div>
+      @error('password')
+      <small>{{ $message }}</small>
+      @enderror
+
+      <div class="links">
+        <p>Sudah mempunyai akun?</p>
+        <a href="{{ route('login') }}">Login</a>
+      </div>
+      <input type="submit" value="Register">
+    </form>
+  </div>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Log in</title>
+  <style>
+    .section.register.min-vh-100.d-flex.flex-column.align-items-center.justify-content-center.py-4 {
+      /* background-color: aqua; */
+      background: linear-gradient(to top right, yellow, rgb(0, 97, 224));
+    }
+    .d-flex.justify-content-center.py-4 {
+      background: transparent;
+    }
+  </style>
+  <link href="../images/LogoKilau.png" rel="icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
+
+    <!-- Template Main CSS File -->
+    <link href="../assets/css/style.css" rel="stylesheet">
+
+</head>
+<body>
+
+  <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+    <div class="container asd">
+      <div class="row justify-content-center">
+      <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+      <div class="d-flex justify-content-center py-4">
+              <img src="../images/LogoKilau.png" alt="Logo" width="115" height="100" class="d-inline-block align-text-top" >
+      </div>
+
+          <div class="card mb-3">
+            <div class="card-header">
+              <h5 class="card-title text-center pb-0 fs-4">LOGIN</h5>
+            </div>
+            <div class="card-body">
+            <form class="row g-3 needs-validation" action="{{ route('login-proses') }}" method="post">
+              @csrf
+              <div class="col-12">
+                  <label for="email" class="form-label">Email Address</label>
+                      <div class="input-group has-validation">
+                          <span class="input-group-text" id="inputGroupPrepend">@</span>
+                          <input type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus class="form-control" id="email">
+                          <div class="invalid-feedback">Please enter your username.</div>
+                      </div>
+              </div>
+              @error('email')
+              <small>{{ $message }}</small>
+              @enderror
+              <div class="col-12">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" id="password" required>
+              
+                <div class="invalid-feedback">Please enter your password!</div>
+              </div>
+              @error('password')
+              <small>{{ $message }}</small>
+              @enderror
+              <div class="col-12">
+                <input class="btn btn-primary w-100" type="submit" value="Login" id="tombollogin">
+              </div>
+            <div class="col-15">
+              <a href="#"> Belum Punya Akun?</a>
+              <a href="{{ route('register') }}">Register</a>
+            </div>
+            </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/parallax/3.1.0/parallax.min.js" integrity="sha512-/6TZODGjYL7M8qb7P6SflJB/nTGE79ed1RfJk3dfm/Ib6JwCT4+tOfrrseEHhxkIhwG8jCl+io6eaiWLS/UX1w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  let scene = document.getElementById('scene');
+  let parallax = new Parallax(scene);
+</script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if ($message = Session::get('success'))
+<script>
+  Swal.fire('{{ $message }}')
+</script>
+@endif
+
+@if ($message = Session::get('failed'))
+<script>
+  Swal.fire('{{ $message }}')
+</script>
+@endif
+
+</body>
+</html>
